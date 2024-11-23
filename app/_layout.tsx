@@ -1,39 +1,51 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
-import { StatusBar } from 'expo-status-bar';
-import { useEffect } from 'react';
-import 'react-native-reanimated';
-
-import { useColorScheme } from '@/hooks/useColorScheme';
-
-// Prevent the splash screen from auto-hiding before asset loading is complete.
-SplashScreen.preventAutoHideAsync();
+import LoginScreen from '@/screens/Login';
+import { getHeaderOptions } from '@/src/config/stackConfig';
+import { theme } from '@/src/theme';
+import { Stack, useRouter } from 'expo-router';
+import React, { useState, useEffect } from 'react'; // Import useEffect
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
-  const [loaded] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
-  });
+  const [token, setToken] = useState<string | null>('token'); // Manage token state
+  const router = useRouter();
 
+  const handleLoginSuccess = (receivedToken: string) => {
+    setToken(receivedToken);
+  };
+
+  const handleActivateAccount = () => {
+    // Navigate to an account activation screen if available
+    // router.push('/activate-account'); // Adjust this path as needed
+  };
+
+  // Effect to handle navigation after the component mounts and token state changes
   useEffect(() => {
-    if (loaded) {
-      SplashScreen.hideAsync();
+    if (token) {
+      // Navigate to the tabs screen after login
+      router.push('/(tabs)');
     }
-  }, [loaded]);
+  }, [token, router]);
 
-  if (!loaded) {
-    return null;
+  // If no token, show the login screen
+  if (!token) {
+    return (
+      <LoginScreen onLoginSuccess={handleLoginSuccess} onActivateAccount={handleActivateAccount} />
+    );
   }
 
+  // If token exists, show the main application layout
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+    <Stack>
+      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+
+      {/* Use the getHeaderOptions function for screens with different titles */}
+      <Stack.Screen name="details" options={getHeaderOptions('Details')} />
+      <Stack.Screen name="actions" options={getHeaderOptions('Action')} />
+      <Stack.Screen name="fastMoving" options={getHeaderOptions('Fast Moving')} />
+      <Stack.Screen name="oos" options={getHeaderOptions('Out Of Stocks')} />
+      <Stack.Screen name="pos" options={getHeaderOptions('Point Of Sale')} />
+      <Stack.Screen name="products" options={getHeaderOptions('Products')} />
+      <Stack.Screen name="reports" options={getHeaderOptions('Reports')} />
+      <Stack.Screen name="checkout" options={getHeaderOptions('Checkout')} />
+    </Stack>
   );
 }
