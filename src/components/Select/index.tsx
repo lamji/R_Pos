@@ -38,8 +38,6 @@ const SelectComponent: React.FC<SelectComponentProps> = ({ data, formik, reset, 
     }
   }, [reset]);
 
-  console.log(error);
-
   return (
     <View style={styles.container}>
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>

@@ -20,6 +20,8 @@ import { theme } from '@/src/theme';
 import ModalAlert from '@/src/components/Modal';
 import Input from '@/src/components/Input';
 import Barcode from '@/src/components/Barcode';
+import SearchWithDebounce from '@/src/components/Search';
+import { dataTypeP } from '@/src/contants/products';
 
 export default function Pos() {
   const {
@@ -34,6 +36,8 @@ export default function Pos() {
     formik,
     handleModalCloseAlert,
     openAlert,
+    filteredProducts,
+    handleSearchResults,
   } = useViewModel();
 
   const Item = ({ data }: { data: any }) => {
@@ -79,23 +83,24 @@ export default function Pos() {
         onPress={Keyboard.dismiss} // Dismiss the keyboard when the user taps outside
       >
         <View style={styles.autoCompleteWrapper}>
-          <AutocompleteInput
-            data={data as any}
-            placeholder="Search product..."
-            onSelect={handleSelect}
-            keyExtractor={(item) => item.id.toString()}
-            displayField="name"
-            maxHeight={210}
-            reset={false}
+          <SearchWithDebounce
+            onSearchResults={(results: any) => handleSearchResults(results)}
+            data={data}
+            placeholder='"Search by name or barcode..."'
           />
         </View>
 
         <View>
           <FlatList
-            data={data}
+            data={filteredProducts || []}
             renderItem={({ item }) => <Item data={item} />}
             keyExtractor={(item) => item.id.toString()}
             style={styles.list}
+            ListEmptyComponent={
+              <View>
+                <Text>No matching results</Text>
+              </View>
+            }
           />
         </View>
 

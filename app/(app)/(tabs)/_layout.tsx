@@ -1,12 +1,14 @@
-import { Tabs } from 'expo-router';
+import { router, Tabs } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { View, Text, TouchableOpacity, Animated } from 'react-native';
 import { theme } from '@/src/theme';
 import { useState, useEffect } from 'react';
 import HeaderMenu from '@/src/components/headerMenu';
 import styles from '@/styles/tabsLayoutStyles';
+import { useSession } from '@/src/ctx';
 
 export default function RootLayout() {
+  const { signOut } = useSession();
   const [isViewVisible, setIsViewVisible] = useState(false); // State to manage visibility
   const [fadeAnim] = useState(new Animated.Value(0)); // Animation value for fade-in
   const [slideAnim] = useState(new Animated.Value(-300)); // Animation value for slide-in
@@ -82,6 +84,10 @@ export default function RootLayout() {
               <Ionicons name="cloud-upload" size={24} color="black" style={styles.menuItemIcon} />
               <Text style={styles.menuItemText}>Restore/Backup</Text>
             </TouchableOpacity>
+            <TouchableOpacity onPress={() => signOut()} style={styles.menuItem}>
+              <Ionicons name="cloud-upload" size={24} color="black" style={styles.menuItemIcon} />
+              <Text style={styles.menuItemText}>Logout</Text>
+            </TouchableOpacity>
           </View>
         </Animated.View>
       )}
@@ -119,7 +125,7 @@ export default function RootLayout() {
           options={{
             title: 'Transaction',
             tabBarIcon: ({ color, focused }) => (
-              <Ionicons name={focused ? 'grid' : 'grid-outline'} color={color} size={24} />
+              <Ionicons name={focused ? 'receipt' : 'receipt-outline'} color={color} size={24} />
             ),
             headerLeft: () => <HeaderMenu onPress={toggleViewVisibility} />,
           }}

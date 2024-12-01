@@ -31,7 +31,7 @@ const styles = StyleSheet.create({
     fontWeight: 700,
   },
   cash: {
-    color: theme.colors.secondary,
+    color: theme.colors.primary,
     fontWeight: 700,
   },
 });

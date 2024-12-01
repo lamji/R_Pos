@@ -1,6 +1,6 @@
 export const theme = {
   colors: {
-    primary: '#B1C29E',
+    primary: '#028391',
     /**
      * Color used
      * Sale Card Component
@@ -10,10 +10,11 @@ export const theme = {
     text: '#000000',
     button: '#6200EE',
     buttonText: '#FFFFFF',
-    default: '#999',
+    default: 'black',
     list: '#F7F8F5',
     error: '#AE445A',
     link: '#1F509A',
+    sub: '#B7B7B7',
   },
   spacing: {
     small: 8,

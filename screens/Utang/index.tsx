@@ -12,23 +12,15 @@ import {
 } from 'react-native';
 import styles from './useStyles';
 import { formatNumberWithPeso } from '@/src/helper/numberCommaSeparator';
-import { AutocompleteInput } from '@/src/components/AutoComplete';
-import { useRouter } from 'expo-router';
+
 import { dataType } from '@/src/types/utang';
 import { sampleData } from '@/src/contants/utang';
 import { generateVintageColor, getInitials } from '@/src/helper/colorGenerator';
+import SearchWithDebounce from '@/src/components/Search';
+import useViewModel from './useViewModel';
 
 export default function UtangScreen() {
-  const router = useRouter();
-
-  const handleSelect = (item: dataType) => {
-    Alert.alert('Selected Item', `ID: ${item.id}\nName: ${item.name}`);
-  };
-
-  const handlePressList = ({ data }: { data: dataType }) => {
-    console.log(data);
-    router.push(`/details`);
-  };
+  const { filteredProducts, handleSearchResults, handlePressList } = useViewModel();
 
   const Item = ({ data }: { data: dataType }) => {
     const avatarBackground = generateVintageColor();
@@ -65,22 +57,24 @@ export default function UtangScreen() {
             <Text style={styles.overAll}>Overall Utang</Text>
           </View>
           <View style={styles.searchWrapper}>
-            <AutocompleteInput
+            <SearchWithDebounce
               data={sampleData}
-              placeholder="Search name..."
-              onSelect={handleSelect}
-              keyExtractor={(item) => item.id.toString()}
-              displayField="name"
-              maxHeight={210}
+              onSearchResults={(results: any) => handleSearchResults(results)}
+              placeholder="Search by name..."
             />
           </View>
         </View>
         <View>
           <FlatList
-            data={sampleData}
+            data={filteredProducts}
             renderItem={({ item }) => <Item data={item} />}
             keyExtractor={(item) => item.id.toString()}
             style={styles.list}
+            ListEmptyComponent={
+              <View>
+                <Text>No matching results</Text>
+              </View>
+            }
           />
         </View>
       </Pressable>

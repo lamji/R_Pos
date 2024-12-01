@@ -24,10 +24,14 @@ const createValidationSchemaUtang = (total: number) =>
 // Validation schema for "partial"
 const createValidationSchemaPartial = (total: number) =>
   Yup.object({
-    amount_partial: Yup.number()
+    partialAmount: Yup.number()
       .typeError('Amount must be a number')
-      .required('Amount is required')
+      .required('Partial amount is required')
       .lessThan(total, `Amount must be at least less than ${total}`),
+    personName: Yup.string()
+      .typeError('Person name is required')
+      .required('Person name is required, use the search box'),
+    cash: Yup.number().required('Cash amount is required'),
   });
 
 export default function useViewModel() {
@@ -48,6 +52,8 @@ export default function useViewModel() {
       amount_u: '',
       amount_p: '',
       personName: '',
+      partialAmount: '',
+      cash: '',
     },
     validationSchema, // Use the dynamically selected schema
     onSubmit: (values) => {

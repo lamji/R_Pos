@@ -47,9 +47,20 @@ export default function Index() {
           onPress={() => handleRedirect('/fastMoving')}
           customStyles={{ marginRight: 18 }}
         />
-
+        <ButtonCard
+          title="C-Drawer"
+          iconName="briefcase" // Icon name from Ionicons
+          onPress={() => handleRedirect('/fastMoving')}
+          customStyles={{ marginRight: 18 }}
+        />
         <ButtonCard
           title="G-List"
+          iconName="list" // Icon name from Ionicons
+          onPress={() => handleRedirect('/fastMoving')}
+          customStyles={{ marginRight: 18 }}
+        />
+        <ButtonCard
+          title="G-Reports"
           iconName="list" // Icon name from Ionicons
           onPress={() => handleRedirect('/fastMoving')}
         />

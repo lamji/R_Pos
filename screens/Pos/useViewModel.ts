@@ -78,7 +78,7 @@ export default function useViewModel() {
   };
 
   const handleCheckout = () => {
-    router.push('/checkout');
+    router.push('/(app)/checkout');
   };
 
   return {

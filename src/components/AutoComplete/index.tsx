@@ -85,6 +85,7 @@ export function AutocompleteInput<T>({
         <FlatList
           data={filteredData}
           keyExtractor={keyExtractor}
+          scrollEnabled={false}
           renderItem={({ item }: any) => (
             <TouchableOpacity style={styles.listItem} onPress={() => handleSelect(item)}>
               <Text>{item[displayField]}</Text>

@@ -1,5 +1,5 @@
 import { dataTypeP, productsData } from '@/src/contants/products';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { Alert } from 'react-native';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
@@ -10,6 +10,7 @@ export default function useViewModel() {
   const [selectedData, setSelectedData] = useState<Partial<dataTypeP>>({});
   const [isEdit, setIsEdit] = useState<boolean>(false);
   const [openAlert, setOpenAlert] = useState<boolean>(false);
+  const [filteredProducts, setFilteredProducts] = useState(productsData); // Initial full list
 
   const handleSelect = (item: dataTypeP) => {
     setIsReset(false);
@@ -83,6 +84,9 @@ export default function useViewModel() {
   const handleModalCloseAlert = () => {
     setOpenAlert(false);
   };
+  const handleSearchResults = useCallback((results: any) => {
+    setFilteredProducts(results);
+  }, []);
 
   return {
     data: productsData,
@@ -99,5 +103,7 @@ export default function useViewModel() {
     setIsEdit,
     handleModalCloseAlert,
     openAlert,
+    filteredProducts,
+    handleSearchResults,
   };
 }

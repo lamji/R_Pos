@@ -16,9 +16,16 @@ type CustomModalProps = {
   onClose: () => void;
   title?: string;
   children?: React.ReactNode;
+  hideButton?: boolean;
 };
 
-const ModalAlert: React.FC<CustomModalProps> = ({ visible, onClose, title, children }) => {
+const ModalAlert: React.FC<CustomModalProps> = ({
+  visible,
+  onClose,
+  title,
+  children,
+  hideButton,
+}) => {
   return (
     <RNModal
       transparent
@@ -36,9 +43,11 @@ const ModalAlert: React.FC<CustomModalProps> = ({ visible, onClose, title, child
             {title && <Text style={styles.modalTitle}>{title}</Text>}
 
             {/* Close Icon */}
-            <TouchableOpacity style={styles.closeIcon} onPress={onClose}>
-              <Ionicons name="close" size={26} color="#000" />
-            </TouchableOpacity>
+            {!hideButton && (
+              <TouchableOpacity style={styles.closeIcon} onPress={onClose}>
+                <Ionicons name="close" size={26} color="#000" />
+              </TouchableOpacity>
+            )}
           </View>
 
           {/* Scrollable Content */}

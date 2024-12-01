@@ -62,6 +62,7 @@ const styles = StyleSheet.create({
     width: '90%',
     alignSelf: 'center',
     borderRadius: 10,
+    marginBottom: 100,
   },
   avatar: {
     width: 40,
