@@ -1,9 +1,11 @@
 import { useState } from 'react';
+import { useSession } from '../ctx';
 
 const useApi = () => {
   const [response, setResponse] = useState<any>(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+  const { session } = useSession();
 
   // Default headers
   const defaultHeaders: HeadersInit = {
@@ -21,7 +23,7 @@ const useApi = () => {
     const mergedHeaders = {
       ...defaultHeaders,
       ...headers,
-      ...(token ? { Authorization: token } : {}),
+      ...(token ? { Authorization: session } : {}),
     };
 
     // Handle query params

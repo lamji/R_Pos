@@ -3,7 +3,7 @@ import { decrement, increment, selectCount } from '@/src/redux/reducer/counter';
 import { View, Text, Button, TouchableOpacity } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 
-const SampleRequest = () => {
+const EditProduct = () => {
   const count = useSelector(selectCount);
   const dispatch = useDispatch();
   return (
@@ -16,4 +16,4 @@ const SampleRequest = () => {
   );
 };
 
-export default SampleRequest;
+export default EditProduct;

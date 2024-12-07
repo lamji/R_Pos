@@ -9,8 +9,8 @@ import {
   View,
   Text,
   Image,
+  ActivityIndicator,
 } from 'react-native';
-import { AutocompleteInput } from '@/src/components/AutoComplete';
 import useViewModel from './useViewModel';
 import styles from './useStyles';
 
@@ -21,9 +21,8 @@ import ModalAlert from '@/src/components/Modal';
 import Input from '@/src/components/Input';
 import Barcode from '@/src/components/Barcode';
 import SearchWithDebounce from '@/src/components/Search';
-import { dataTypeP } from '@/src/contants/products';
 
-export default function Pos() {
+export default function Producst() {
   const {
     data,
     handleSelect,
@@ -38,7 +37,16 @@ export default function Pos() {
     openAlert,
     filteredProducts,
     handleSearchResults,
+    onRefresh,
+    refreshing,
+    resetVal,
+    isLoading,
   } = useViewModel();
+
+  // console.log('refreshing', formik.values);
+  const sortedProducts = (filteredProducts || []).sort(
+    (a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime()
+  );
 
   const Item = ({ data }: { data: any }) => {
     const avatarBackground = generateVintageColor();
@@ -78,36 +86,34 @@ export default function Pos() {
       style={{ flex: 1, padding: 10 }}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      <Pressable
-        style={{ flex: 1 }}
-        onPress={Keyboard.dismiss} // Dismiss the keyboard when the user taps outside
-      >
+      <Pressable style={{ flex: 1 }} onPress={Keyboard.dismiss}>
         <View style={styles.autoCompleteWrapper}>
           <SearchWithDebounce
             onSearchResults={(results: any) => handleSearchResults(results)}
             data={data}
-            placeholder='"Search by name or barcode..."'
+            placeholder="Search by name or barcode..."
+            setValue={resetVal}
           />
         </View>
 
-        <View>
+        <View style={{ paddingBottom: 100 }}>
           <FlatList
-            data={filteredProducts || []}
-            renderItem={({ item }) => <Item data={item} />}
-            keyExtractor={(item) => item.id.toString()}
+            data={sortedProducts}
+            renderItem={({ item }: any) => <Item data={item} />}
+            keyExtractor={(item: any) => item.id.toString()}
             style={styles.list}
             ListEmptyComponent={
               <View>
                 <Text>No matching results</Text>
               </View>
             }
+            refreshing={refreshing}
+            // onRefresh={onRefresh}
           />
         </View>
 
         <ModalAlert title="Product Details" visible={openModal} onClose={handleModalClose}>
           <View style={{ width: '100%' }}>
-            {/* Add inputs with validation */}
-
             {isEdit ? (
               <View>
                 <Input
@@ -170,6 +176,11 @@ export default function Pos() {
           )}
         </ModalAlert>
         <ModalAlert title="" visible={openAlert} onClose={handleModalCloseAlert}></ModalAlert>
+        {isLoading && (
+          <View style={styles.loader}>
+            <ActivityIndicator size="large" color="#4CAF50" />
+          </View>
+        )}
       </Pressable>
     </KeyboardAvoidingView>
   );

@@ -14,6 +14,7 @@ type SearchWithDebounceProps<T> = {
   filterFunction?: (item: T, searchTerm: string) => boolean; // Custom filtering logic
   placeholder?: string; // Optional placeholder for the search input
   debounceDelay?: number; // Optional debounce delay (default 500ms)
+  setValue?: boolean;
 };
 
 const SearchWithDebounce = <T,>({
@@ -22,6 +23,7 @@ const SearchWithDebounce = <T,>({
   filterFunction,
   placeholder = 'Search...',
   debounceDelay = 500,
+  setValue,
 }: SearchWithDebounceProps<T>) => {
   const [searchTerm, setSearchTerm] = useState(''); // User input
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
@@ -47,6 +49,12 @@ const SearchWithDebounce = <T,>({
 
     onSearchResults(filteredProducts);
   }, [debouncedSearchTerm]);
+
+  useEffect(() => {
+    if (setValue) {
+      setSearchTerm('');
+    }
+  }, [setValue]);
 
   return (
     <View style={styles.container}>

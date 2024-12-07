@@ -33,6 +33,7 @@ export default function AppLayout() {
       <Stack.Screen name="products" options={getHeaderOptions('Products')} />
       <Stack.Screen name="reports" options={getHeaderOptions('Reports')} />
       <Stack.Screen name="checkout" options={getHeaderOptions('Checkout')} />
+      <Stack.Screen name="edit" options={getHeaderOptions('Edit Product')} />
     </Stack>
   );
 }

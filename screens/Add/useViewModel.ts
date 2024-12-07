@@ -6,7 +6,6 @@ import * as Yup from 'yup';
 import { generateUniqueBarcode } from '@/src/helper/barcodegenerator';
 import uuid from 'react-native-uuid';
 
-import useAddItems from '@/src/hooks/useAddItems';
 import useApi from '@/src/hooks/useLogin';
 import { useSession } from '@/src/ctx';
 
@@ -61,7 +60,6 @@ export default function useViewModel() {
 
         try {
           const token = session;
-
           const result = await request.post('/add_items', {
             token,
             body: data,
