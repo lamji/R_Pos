@@ -24,6 +24,7 @@ const styles = StyleSheet.create({
     fontSize: theme.fontSizes.body,
     color: theme.colors.default,
     fontWeight: 700,
+    // marginLeft: 20,
   },
   totalItems: {
     fontWeight: 700,

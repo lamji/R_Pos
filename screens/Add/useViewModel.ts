@@ -55,6 +55,7 @@ export default function useViewModel() {
             quantity: values.quantity,
             regularPrice: values.originalPrice,
             date: new Date(),
+            images: '',
           },
         };
 

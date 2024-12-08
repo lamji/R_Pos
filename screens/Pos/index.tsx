@@ -34,7 +34,7 @@ export default function Products() {
     selectedData,
     handleModalClose,
     handleCheckout,
-    formik,
+
     handleModalCloseAlert,
     openAlert,
     refreshing,
@@ -50,13 +50,16 @@ export default function Products() {
           <View style={styles.nameWrapper}>
             {/* Conditional rendering for avatar or image */}
             {data.images ? (
-              <Image source={{ uri: data.images }} style={styles.image} />
+              <Image
+                source={{ uri: `data:image/png;base64,${data.images}` }}
+                style={styles.image}
+              />
             ) : (
               <View style={[styles.avatar, { backgroundColor: avatarBackground.hex }]}>
                 <Text style={styles.avatarText}>{getInitials(data.name)}</Text>
               </View>
             )}
-            <View>
+            <View style={{ marginLeft: 10 }}>
               <Text style={styles.title}>{data.name}</Text>
               <Text
                 style={{

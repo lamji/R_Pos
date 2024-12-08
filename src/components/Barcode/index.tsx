@@ -42,7 +42,7 @@ const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 20,
+    padding: 10,
     backgroundColor: '#f9f9f9',
   },
   label: {

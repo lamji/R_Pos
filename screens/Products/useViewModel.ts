@@ -1,19 +1,16 @@
-import { dataTypeP, productsData } from '@/src/contants/products';
+import { dataTypeP } from '@/src/contants/products';
 import { useCallback, useEffect, useState } from 'react';
 import { Alert } from 'react-native';
-import { useFormik } from 'formik';
-import * as Yup from 'yup';
 import useApi from '@/src/hooks/useLogin';
 
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { router } from 'expo-router';
+import { useDispatch } from 'react-redux';
+import { saveProductDetails } from '@/src/redux/reducer/products';
 
 export default function useViewModel() {
-  const queryClient = useQueryClient();
-  const [isReset, setIsReset] = useState(false);
+  const dispatch = useDispatch();
   const [openModal, setOpenModal] = useState(false);
-  const [selectedData, setSelectedData] = useState<Partial<dataTypeP>>({});
-  const [isEdit, setIsEdit] = useState<boolean>(false);
   const [openAlert, setOpenAlert] = useState<boolean>(false);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const { request } = useApi();
@@ -31,100 +28,9 @@ export default function useViewModel() {
     },
   });
 
-  const mutation = useMutation({
-    mutationFn: async (formData: any) => {
-      return await request.put('/update_single_items', {
-        token: true,
-        body: {
-          item: {
-            id: selectedData.id, // Leave as string since it's an ID.
-            name: formData?.name, // Leave as is since it's a string.
-            price: Number(formData?.price), // Converts "10" to 10
-            barcode: selectedData.barcode, // Leave as string since it's a barcode.
-            quantity: Number(formData?.quantity), // Converts "10" to 10
-            regularPrice: Number(formData?.regularPrice), // Converts "10" to 10
-            date: new Date(),
-          },
-        },
-      });
-    },
-    onSuccess: (result) => {
-      queryClient.invalidateQueries({ queryKey: ['getItems'] });
-      if (result.success) {
-        Alert.alert(
-          'Success',
-          'Your operation was completed successfully!', // Message
-          [
-            { text: 'OK', onPress: () => setOpenModal(false) }, // Button
-          ]
-        );
-      } else {
-        Alert.alert('Error', 'Error updating the product', [
-          { text: 'OK', onPress: () => console.log('OK Pressed') }, // Button
-        ]);
-      }
-    },
-    onError: (err: any) => {
-      Alert.alert(err);
-    },
-  });
-
-  const handleSelect = (item: dataTypeP) => {
-    setIsReset(false);
-    Alert.alert(
-      'Selected Item',
-      `ID: ${item.id}\nName: ${item.name}`,
-      [
-        {
-          text: 'OK',
-          onPress: () => setIsReset(true), // Set isReset to true when OK is pressed
-        },
-        {
-          text: 'Cancel',
-          style: 'cancel', // Optional cancel button
-        },
-      ],
-      { cancelable: false }
-    );
-  };
-
-  const handleModalClose = () => {
-    setOpenModal(false);
-    setIsEdit(false);
-  };
-
-  const validationSchema = Yup.object({
-    name: Yup.string()
-      .required('Product name is required')
-      .min(3, 'Name must be at least 3 characters long'),
-    price: Yup.number().required('Price is required'),
-    quantity: Yup.number().required('Quantity is required'),
-    regularPrice: Yup.number().required('Regular price is required'),
-  });
-
-  const formik = useFormik({
-    initialValues: {
-      name: '',
-      price: '',
-      quantity: '',
-      regularPrice: '',
-    },
-    validationSchema,
-    validateOnChange: false, // Disable validation on value change
-    validateOnBlur: true, // Enable validation on blur
-    onSubmit: async (values) => {
-      mutation.mutate(values);
-    },
-  });
-
   const handlePressList = ({ data }: { data: dataTypeP }) => {
+    dispatch(saveProductDetails(data));
     router.push(`/edit`);
-    // setSelectedData(data);
-    // setOpenModal(true);
-    // formik.setFieldValue('name', data.name);
-    // formik.setFieldValue('price', data.price);
-    // formik.setFieldValue('quantity', data.quantity);
-    // formik.setFieldValue('regularPrice', data.regularPrice || 0);
   };
 
   const handleModalCloseAlert = () => {
@@ -155,16 +61,9 @@ export default function useViewModel() {
 
   return {
     data: productsData,
-    handleSelect,
-    isReset,
     handlePressList,
     openModal,
     setOpenModal,
-    selectedData,
-    handleModalClose,
-    formik,
-    isEdit,
-    setIsEdit,
     handleModalCloseAlert,
     openAlert,
     filteredProducts,

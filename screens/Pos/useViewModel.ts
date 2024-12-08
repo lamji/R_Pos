@@ -6,7 +6,11 @@ import * as Yup from 'yup';
 import { useRouter } from 'expo-router';
 import useRefresh from '@/src/hooks/useRefresh';
 
+import useApi from '@/src/hooks/useLogin';
+import { useQuery } from '@tanstack/react-query';
+
 export default function useViewModel() {
+  const { request } = useApi();
   const router = useRouter();
   const { refreshing, onRefresh } = useRefresh();
   const [isReset, setIsReset] = useState(false);
@@ -14,6 +18,16 @@ export default function useViewModel() {
   const [selectedData, setSelectedData] = useState<Partial<dataTypeP>>({});
   const [isEdit, setIsEdit] = useState<boolean>(false);
   const [openAlert, setOpenAlert] = useState<boolean>(false);
+
+  const { refetch, isError, data, error, isLoading, isSuccess } = useQuery({
+    queryKey: ['getItems'],
+    queryFn: async () => {
+      const result = await request.get('/get_items', {
+        token: true,
+      });
+      return result;
+    },
+  });
 
   const handleSelect = (item: dataTypeP) => {
     setIsReset(false);
@@ -39,38 +53,9 @@ export default function useViewModel() {
     setIsEdit(false);
   };
 
-  const validationSchema = Yup.object({
-    name: Yup.string()
-      .required('Product name is required')
-      .min(3, 'Name must be at least 3 characters long'),
-    price: Yup.number().required('Price is required'),
-    quantity: Yup.number().required('Quantity is required'),
-    regularPrice: Yup.number().required('Regular price is required'),
-  });
-
-  const formik = useFormik({
-    initialValues: {
-      name: '',
-      price: '',
-      quantity: '',
-      regularPrice: '',
-    },
-    validationSchema,
-    validateOnChange: false, // Disable validation on value change
-    validateOnBlur: true, // Enable validation on blur
-    onSubmit: (values) => {
-      alert(JSON.stringify(values, null, 2));
-    },
-  });
-
   const handlePressList = ({ data }: { data: dataTypeP }) => {
     setSelectedData(data);
     setOpenModal(true);
-
-    formik.setFieldValue('name', data.name);
-    formik.setFieldValue('price', data.price);
-    formik.setFieldValue('quantity', data.quantity);
-    formik.setFieldValue('regularPrice', data.regularPrice);
   };
 
   const handleModalCloseAlert = () => {
@@ -82,7 +67,7 @@ export default function useViewModel() {
   };
 
   return {
-    data: productsData,
+    data: data?.data[0].items,
     handleSelect,
     isReset,
     handlePressList,
@@ -90,7 +75,7 @@ export default function useViewModel() {
     setOpenModal,
     selectedData,
     handleModalClose,
-    formik,
+
     isEdit,
     setIsEdit,
     handleModalCloseAlert,

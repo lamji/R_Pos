@@ -25,19 +25,11 @@ import SearchWithDebounce from '@/src/components/Search';
 export default function Producst() {
   const {
     data,
-    handleSelect,
     handlePressList,
-    openModal,
-    selectedData,
-    isEdit,
-    handleModalClose,
-    setIsEdit,
-    formik,
     handleModalCloseAlert,
     openAlert,
     filteredProducts,
     handleSearchResults,
-    onRefresh,
     refreshing,
     resetVal,
     isLoading,
@@ -57,13 +49,16 @@ export default function Producst() {
           <View style={styles.nameWrapper}>
             {/* Conditional rendering for avatar or image */}
             {data.images ? (
-              <Image source={{ uri: data.images }} style={styles.image} />
+              <Image
+                source={{ uri: `data:image/png;base64,${data.images}` }}
+                style={styles.image}
+              />
             ) : (
               <View style={[styles.avatar, { backgroundColor: avatarBackground.hex }]}>
                 <Text style={styles.avatarText}>{getInitials(data.name)}</Text>
               </View>
             )}
-            <View>
+            <View style={{ marginLeft: 10 }}>
               <Text style={styles.title}>{data.name}</Text>
               <Text
                 style={{
@@ -72,6 +67,7 @@ export default function Producst() {
               >
                 Qty: {data.quantity}
               </Text>
+              <Text>{data.barcode}</Text>
             </View>
           </View>
 
@@ -112,69 +108,6 @@ export default function Producst() {
           />
         </View>
 
-        <ModalAlert title="Product Details" visible={openModal} onClose={handleModalClose}>
-          <View style={{ width: '100%' }}>
-            {isEdit ? (
-              <View>
-                <Input
-                  label="Product name"
-                  value={formik.values.name}
-                  onChangeText={formik.handleChange('name')}
-                  placeholder="Enter product name"
-                  error={formik.errors.name}
-                />
-                <Input
-                  label="Price"
-                  value={String(formik.values.price)}
-                  onChangeText={formik.handleChange('price')}
-                  placeholder="Price"
-                  error={formik.errors.price}
-                  keyboardType="numeric"
-                />
-                <Input
-                  label="Quantity"
-                  value={String(formik.values.quantity)}
-                  onChangeText={formik.handleChange('quantity')}
-                  placeholder="Quantity"
-                  error={formik.errors.quantity}
-                  keyboardType="numeric"
-                />
-                <Input
-                  label="Regular Price"
-                  value={String(formik.values.regularPrice)}
-                  onChangeText={formik.handleChange('regularPrice')}
-                  placeholder="Regular Price"
-                  error={formik.errors.regularPrice}
-                  keyboardType="numeric"
-                />
-              </View>
-            ) : (
-              <View>
-                <Barcode value="123456789" width={3} height={50} />
-                {selectedData && (
-                  <View style={{ marginTop: 10 }}>
-                    <Text style={styles.pText}>Product Name: {selectedData.name}</Text>
-                    <Text style={styles.pText}>Price: {selectedData.price}</Text>
-                    <Text style={styles.pText}>Stocks: {selectedData.quantity}</Text>
-                    <Text style={styles.pText}>Regular Price: {selectedData.regularPrice}</Text>
-                    <Text style={styles.pText}>
-                      Interest: {(selectedData?.price ?? 0) - (selectedData.regularPrice ?? 0)}
-                    </Text>
-                  </View>
-                )}
-              </View>
-            )}
-          </View>
-          {isEdit ? (
-            <TouchableOpacity style={styles.submitButton} onPress={() => formik.handleSubmit()}>
-              <Text style={styles.submitButtonText}>Submit</Text>
-            </TouchableOpacity>
-          ) : (
-            <TouchableOpacity style={styles.submitButton} onPress={() => setIsEdit(true)}>
-              <Text style={styles.submitButtonText}>Edit</Text>
-            </TouchableOpacity>
-          )}
-        </ModalAlert>
         <ModalAlert title="" visible={openAlert} onClose={handleModalCloseAlert}></ModalAlert>
         {isLoading && (
           <View style={styles.loader}>
