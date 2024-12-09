@@ -15,6 +15,7 @@ interface AutocompleteInputProps<T> extends TextInputProps {
   enableScan?: boolean;
   width?: any;
   noResultOverride?: any;
+  handleScan?: () => void;
 }
 
 export function AutocompleteInput<T>({
@@ -28,6 +29,7 @@ export function AutocompleteInput<T>({
   width,
   enableScan,
   noResultOverride,
+  handleScan,
   ...textInputProps
 }: AutocompleteInputProps<T>) {
   const [query, setQuery] = useState<string>(''); // State for the input query
@@ -76,7 +78,7 @@ export function AutocompleteInput<T>({
           {...textInputProps}
         />
         {enableScan && (
-          <TouchableOpacity style={[styles.Scanner]}>
+          <TouchableOpacity style={[styles.Scanner]} onPress={handleScan}>
             <Ionicons name="scan" size={50} color={theme.colors.primary} />
           </TouchableOpacity>
         )}

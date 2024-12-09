@@ -152,6 +152,12 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginLeft: 8, // Space between icon and label
   },
+  emptyList: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 50,
+  },
 });
 
 export default styles;

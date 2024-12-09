@@ -20,6 +20,9 @@ export const productSlice = createSlice({
     addPosProduct: (state, action: PayloadAction<Record<string, any>>) => {
       state.posProducts.unshift(action.payload); // Adds the new product to the top of the array
     },
+    removePosProduct: (state, action: PayloadAction<{ id: string }>) => {
+      state.posProducts = state.posProducts.filter((product) => product.id !== action.payload.id);
+    },
     adjustPosProductQuantity: (state, action: PayloadAction<{ id: string; amount: number }>) => {
       const productIndex = state.posProducts.findIndex(
         (product) => product.id === action.payload.id
@@ -33,7 +36,8 @@ export const productSlice = createSlice({
 });
 
 // Exporting actions
-export const { saveProductDetails, addPosProduct } = productSlice.actions;
+export const { saveProductDetails, addPosProduct, adjustPosProductQuantity, removePosProduct } =
+  productSlice.actions;
 
 // Selector to get product details
 export const selectProductDetails = (state: { product: ProductState }) =>

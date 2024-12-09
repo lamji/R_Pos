@@ -11,6 +11,7 @@ import {
   Image,
   Alert,
   RefreshControl,
+  ActivityIndicator,
 } from 'react-native';
 import { AutocompleteInput } from '@/src/components/AutoComplete';
 import useViewModel from './useViewModel';
@@ -24,6 +25,7 @@ import Input from '@/src/components/Input';
 import Barcode from '@/src/components/Barcode';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import FloatingIcon from '@/src/components/FloatButton';
+import CameraScanner from '@/src/components/Scanner';
 
 export default function Products() {
   const {
@@ -34,11 +36,16 @@ export default function Products() {
     selectedData,
     handleModalClose,
     handleCheckout,
-
-    handleModalCloseAlert,
-    openAlert,
+    isLoading,
     refreshing,
     onRefresh,
+    posProducts,
+    handleIncrement,
+    handleDecrement,
+    total,
+    barcodeModal,
+    handleBarcodeScanned,
+    setBarcodeModal,
   } = useViewModel();
 
   const Item = ({ data }: { data: any }) => {
@@ -48,7 +55,6 @@ export default function Products() {
       <TouchableOpacity onPress={() => handlePressList({ data })}>
         <View style={styles.item}>
           <View style={styles.nameWrapper}>
-            {/* Conditional rendering for avatar or image */}
             {data.images ? (
               <Image
                 source={{ uri: `data:image/png;base64,${data.images}` }}
@@ -66,7 +72,7 @@ export default function Products() {
                   color: theme.colors.default,
                 }}
               >
-                Qty: 3
+                Qty: {data.quantity}
               </Text>
               <Text
                 style={{
@@ -78,7 +84,7 @@ export default function Products() {
             </View>
           </View>
 
-          <Text style={styles.totalItems}>{formatNumberWithPeso(data.price * 5)}</Text>
+          <Text style={styles.totalItems}>{formatNumberWithPeso(data.price * data.quantity)}</Text>
         </View>
       </TouchableOpacity>
     );
@@ -104,10 +110,12 @@ export default function Products() {
             reset={false}
             enableScan={true}
             width={'86%'}
+            handleScan={() => setBarcodeModal(true)}
           />
         </View>
+
         <FlatList
-          data={data}
+          data={posProducts}
           renderItem={({ item }) => <Item data={item} />}
           keyExtractor={(item) => item.id.toString()}
           style={styles.list}
@@ -119,28 +127,65 @@ export default function Products() {
               progressBackgroundColor={'black'}
             />
           }
+          ListEmptyComponent={
+            <View style={styles.emptyList}>
+              <Text style={{ fontWeight: 700, marginBottom: 4 }}>No products added</Text>
+              <Text style={{ fontSize: 12 }}>Scan or search</Text>
+            </View>
+          }
         />
 
-        <FloatingIcon label="Checkout" handleCheckout={handleCheckout} amount={1234} />
+        <FloatingIcon label="Total" handleCheckout={handleCheckout} amount={total} />
 
-        <ModalAlert title={selectedData.name} visible={openModal} onClose={handleModalClose}>
+        <ModalAlert
+          title={selectedData.name}
+          visible={openModal}
+          hideButton={true}
+          onClose={handleModalClose}
+        >
           <View style={{ width: '100%' }}>
             <View style={styles.qtyWrapper}>
-              <TouchableOpacity style={[styles.buttonMinus, { justifyContent: 'center' }]}>
+              <TouchableOpacity
+                style={[styles.buttonMinus, { justifyContent: 'center' }]}
+                onPress={() => handleDecrement(selectedData.id)}
+              >
                 <Ionicons name="remove-outline" size={20} color="#fff" />
               </TouchableOpacity>
-              <Text style={styles.qtyHead}>14</Text>
-              <TouchableOpacity style={[styles.buttonAdd, { justifyContent: 'center' }]}>
+              <Text style={styles.qtyHead}>{selectedData.quantity}</Text>
+              <TouchableOpacity
+                style={[styles.buttonAdd, { justifyContent: 'center' }]}
+                onPress={() => handleIncrement(selectedData.id)}
+              >
                 <Ionicons name="add-outline" size={20} color="#fff" />
               </TouchableOpacity>
             </View>
-            <TouchableOpacity style={[styles.button, { justifyContent: 'center' }]}>
+            <TouchableOpacity
+              style={[styles.button, { justifyContent: 'center' }]}
+              onPress={handleModalClose}
+            >
               <Ionicons name="save" size={20} color="#fff" style={styles.icon} />
               <Text style={styles.buttonText}>Proceed</Text>
             </TouchableOpacity>
           </View>
         </ModalAlert>
-        <ModalAlert title="" visible={openAlert} onClose={handleModalCloseAlert}></ModalAlert>
+        <ModalAlert
+          visible={barcodeModal}
+          onClose={function (): void {
+            null;
+          }}
+        >
+          <CameraScanner onScanned={(barcode: string) => handleBarcodeScanned(barcode)} />
+        </ModalAlert>
+        <ModalAlert
+          hideButton={true}
+          visible={isLoading}
+          onClose={function (): void {
+            null;
+          }}
+        >
+          <ActivityIndicator size="large" color="#4CAF50" />
+          <Text style={{ textAlign: 'center', marginTop: 10 }}>Geting product list</Text>
+        </ModalAlert>
       </Pressable>
     </KeyboardAvoidingView>
   );
