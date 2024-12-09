@@ -168,21 +168,16 @@ export default function Products() {
             </TouchableOpacity>
           </View>
         </ModalAlert>
-        <ModalAlert
-          visible={barcodeModal}
-          onClose={function (): void {
-            null;
-          }}
-        >
-          <CameraScanner onScanned={(barcode: string) => handleBarcodeScanned(barcode)} />
+        <ModalAlert visible={barcodeModal} onClose={() => null} hideButton={true}>
+          <CameraScanner
+            isCameraOnly={false}
+            onScanned={(barcode: string) => handleBarcodeScanned(barcode)}
+          />
+          <TouchableOpacity style={styles.closeButton} onPress={() => setBarcodeModal(false)}>
+            <Ionicons name="close" size={30} color="white" />
+          </TouchableOpacity>
         </ModalAlert>
-        <ModalAlert
-          hideButton={true}
-          visible={isLoading}
-          onClose={function (): void {
-            null;
-          }}
-        >
+        <ModalAlert hideButton={true} visible={isLoading} onClose={() => null}>
           <ActivityIndicator size="large" color="#4CAF50" />
           <Text style={{ textAlign: 'center', marginTop: 10 }}>Geting product list</Text>
         </ModalAlert>

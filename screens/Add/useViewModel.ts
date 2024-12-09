@@ -8,15 +8,45 @@ import uuid from 'react-native-uuid';
 
 import useApi from '@/src/hooks/useLogin';
 import { useSession } from '@/src/ctx';
+import { useDispatch, useSelector } from 'react-redux';
+import { getBarcode, setBarcode, setSearchType } from '@/src/redux/reducer/global';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 export default function useViewModel() {
+  const queryClient = useQueryClient();
+  const dispatch = useDispatch();
+  const barcodeState = useSelector(getBarcode);
   const router = useRouter();
   const { request } = useApi();
-  const { session, showLoader, isSuccess } = useSession();
 
   const [isReset, setIsReset] = useState(false);
-  const [type, setType] = useState('');
   const [isModalVisible, setModalVisible] = useState(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  const mutation = useMutation({
+    mutationFn: async (data: any) => {
+      return await request.post('/add_items', {
+        token: true,
+        body: data,
+      });
+    },
+    onSuccess: (result) => {
+      if (result.success) {
+        setIsLoading(false);
+        dispatch(setBarcode(''));
+        formik.resetForm(); // Reset the form here
+        formik.setFieldValue('type', '');
+      } else {
+        Alert.alert(result.message);
+      }
+      queryClient.invalidateQueries({ queryKey: ['getItems'] });
+    },
+    onError: (error) => {
+      console.error('Request Error:', error);
+      Alert.alert('An error occurred while submitting the form.');
+      setIsLoading(false);
+    },
+  });
 
   const validationSchema = Yup.object({
     id: Yup.string(),
@@ -41,8 +71,8 @@ export default function useViewModel() {
     validationSchema,
     validateOnChange: true, // Disable validation on value change
     validateOnBlur: true, // Enable validation on blur
-    onSubmit: async (values, { resetForm }) => {
-      showLoader?.(true);
+    onSubmit: async (values) => {
+      setIsLoading(true);
       if (values.type === 'New') {
         //add new item
         const data = {
@@ -60,23 +90,11 @@ export default function useViewModel() {
         };
 
         try {
-          const token = session;
-          const result = await request.post('/add_items', {
-            token,
-            body: data,
-          });
-
-          if (result.success) {
-            resetForm();
-            isSuccess?.(true);
-          } else {
-            Alert.alert(result.message);
-          }
-          showLoader?.(false);
+          mutation.mutate(data);
         } catch (err: any) {
           console.error('Request Error:', err);
           Alert.alert(err);
-          showLoader?.(false);
+          setIsLoading(false);
         }
       } else {
         // update single items
@@ -92,7 +110,6 @@ export default function useViewModel() {
 
   const handleCloseModal = () => {
     setModalVisible(false);
-    setType('');
     setIsReset(true);
     formik.setFieldValue('type', '');
   };
@@ -100,6 +117,10 @@ export default function useViewModel() {
   const handleRedirectActions = (type: string) => {
     router.push(`/actions`);
     handleCloseModal();
+    dispatch(setSearchType(type));
+    if (type === 'scanNew') {
+      formik.setFieldValue('type', 'New');
+    }
   };
 
   useEffect(() => {
@@ -109,6 +130,13 @@ export default function useViewModel() {
     }
   }, [formik.values.type]);
 
+  useEffect(() => {
+    if (barcodeState) {
+      formik.setFieldValue('barcode', barcodeState);
+      formik.setFieldValue('id', uuid.v4());
+    }
+  }, [barcodeState]);
+
   return {
     formik,
     isModalVisible,
@@ -116,5 +144,6 @@ export default function useViewModel() {
     isReset,
     handleGenerateBarcode,
     handleRedirectActions,
+    isLoading,
   };
 }

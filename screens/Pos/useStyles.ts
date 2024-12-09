@@ -158,6 +158,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 50,
   },
+  closeButton: {
+    position: 'absolute',
+
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    borderRadius: 25,
+    padding: 10,
+    zIndex: 1,
+    bottom: 30,
+    right: '43%',
+  },
 });
 
 export default styles;

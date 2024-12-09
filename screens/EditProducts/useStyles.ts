@@ -62,6 +62,75 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: theme.colors.primary, // Optional: Add border
   },
+  content: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 50,
+    backgroundColor: theme.colors.background,
+  },
+  cameraButtonWrapper: {
+    alignItems: 'center',
+    marginBottom: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
+    elevation: 5,
+    position: 'relative',
+  },
+  cameraWrapper2: {
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+    backgroundColor: theme.colors.primary,
+    borderRadius: 20,
+    padding: 5,
+  },
+  inEditImage2: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+  },
+  menuModal: {
+    justifyContent: 'flex-end',
+    margin: 0,
+  },
+  menuOptions: {
+    backgroundColor: 'white',
+    padding: 20,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+  },
+  menuItem: {
+    padding: 15,
+  },
+  menuText: {
+    fontSize: 18,
+  },
+  cameraModal: {
+    justifyContent: 'center',
+    margin: 0,
+  },
+  cameraView: {
+    flex: 1,
+  },
+  cameraControls: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  flipButton: {
+    marginBottom: 20,
+  },
+  flipText: {
+    fontSize: 18,
+    color: '#fff',
+  },
+  captureButton: {
+    alignSelf: 'center',
+  },
 });
 
 export default styles;

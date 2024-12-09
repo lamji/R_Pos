@@ -18,6 +18,9 @@ import { theme } from '@/src/theme';
 import { Ionicons } from '@expo/vector-icons'; // Ensure you have this package installed
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import ModalAlert from '@/src/components/Modal';
+import Modal from 'react-native-modal';
+
+import CameraScanner from '@/src/components/Scanner';
 
 const EditProduct = () => {
   const {
@@ -28,11 +31,15 @@ const EditProduct = () => {
     setIsEdit,
     handleEditPress,
     imagePlaceHolder,
-    pickImage,
     image,
     setImage,
-    isSuccess,
     isLoading,
+    handleMenuOption,
+    isMenuVisible,
+    setMenuVisible,
+    isScannerVisible,
+    setScannerVisible,
+    handleImageCapture,
   } = useViewModel();
 
   return (
@@ -66,7 +73,7 @@ const EditProduct = () => {
                     elevation: 5,
                     position: 'relative', // Allow for overlay positioning
                   }}
-                  onPress={pickImage}
+                  onPress={() => setMenuVisible(true)}
                   activeOpacity={0.8} // Feedback on press
                 >
                   {/* User's Avatar */}
@@ -87,9 +94,7 @@ const EditProduct = () => {
                   <Image source={{ uri: imagePlaceHolder }} style={styles.nonEditImage} />
                 </View>
               )}
-
               {isEdit && <Barcode value={product.barcode} width={1} height={50} />}
-
               {isEdit ? (
                 <View>
                   <Input
@@ -174,6 +179,47 @@ const EditProduct = () => {
             >
               <ActivityIndicator size="large" color="#4CAF50" />
               <Text style={{ textAlign: 'center', marginTop: 10 }}>Updating Product</Text>
+            </ModalAlert>
+
+            <Modal
+              isVisible={isMenuVisible}
+              onBackdropPress={() => setMenuVisible(false)} // Close on background press
+              style={{
+                justifyContent: 'flex-end',
+                margin: 0,
+              }}
+            >
+              <View
+                style={{
+                  backgroundColor: 'white',
+                  padding: 20,
+                  borderTopLeftRadius: 20,
+                  borderTopRightRadius: 20,
+                }}
+              >
+                <TouchableOpacity
+                  onPress={() => handleMenuOption('upload')}
+                  style={{ padding: 15 }}
+                >
+                  <Text style={{ fontSize: 18 }}>Upload Photo</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => handleMenuOption('camera')}
+                  style={{ padding: 15 }}
+                >
+                  <Text style={{ fontSize: 18 }}>Take Photo</Text>
+                </TouchableOpacity>
+              </View>
+            </Modal>
+
+            <ModalAlert visible={isScannerVisible} hideButton={true} onClose={() => null}>
+              <CameraScanner
+                onImageCaptured={(image: any) => handleImageCapture(image)}
+                isCameraOnly={true}
+                onClose={() => {
+                  setScannerVisible(false);
+                }}
+              />
             </ModalAlert>
           </View>
         </TouchableWithoutFeedback>

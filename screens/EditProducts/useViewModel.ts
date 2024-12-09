@@ -19,6 +19,9 @@ export default function useViewModel() {
   const [image, setImage] = useState<string | null>(null);
   const [imageDb, setImageDb] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isScannerVisible, setScannerVisible] = useState(false);
+
+  const [isMenuVisible, setMenuVisible] = useState(false);
 
   const imagePlaceHolder = product.images
     ? `data:image/png;base64,${product.images}`
@@ -41,6 +44,7 @@ export default function useViewModel() {
       });
 
       setImageDb(base64Image);
+      setMenuVisible(false);
     }
   };
 
@@ -134,6 +138,26 @@ export default function useViewModel() {
     setIsEdit(true);
   };
 
+  const handleMenuOption = (option: string) => {
+    if (option === 'upload') {
+      pickImage(); // Call the function to upload an image
+    } else if (option === 'camera') {
+      // Implement take photo logic here
+      setScannerVisible(true);
+    }
+  };
+
+  const handleImageCapture = async (imageUri: any) => {
+    setScannerVisible(false);
+    setImage(imageUri);
+    setMenuVisible(false);
+    const base64Image = await FileSystem.readAsStringAsync(imageUri, {
+      encoding: FileSystem.EncodingType.Base64,
+    });
+
+    setImageDb(base64Image);
+  };
+
   return {
     isEdit,
     product,
@@ -147,5 +171,11 @@ export default function useViewModel() {
     setImage,
     isSuccess,
     isLoading,
+    handleMenuOption,
+    isMenuVisible,
+    setMenuVisible,
+    isScannerVisible,
+    setScannerVisible,
+    handleImageCapture,
   };
 }

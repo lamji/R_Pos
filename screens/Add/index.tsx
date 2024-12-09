@@ -10,6 +10,7 @@ import {
   Platform,
   Alert,
   ScrollView,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import SelectComponent from '@/src/components/Select';
@@ -27,6 +28,7 @@ const AddScreen = () => {
     handleGenerateBarcode,
     handleRedirectActions,
     formik,
+    isLoading,
   } = useViewModel();
 
   return (
@@ -103,6 +105,9 @@ const AddScreen = () => {
               <TouchableOpacity onPress={handleGenerateBarcode}>
                 <Text style={styles.link}>No Barcode? Generate here</Text>
               </TouchableOpacity>
+              <TouchableOpacity onPress={() => handleRedirectActions('scanNew')}>
+                <Text style={styles.link}>Has Barcode? Scan here</Text>
+              </TouchableOpacity>
             </View>
           </ScrollView>
         </TouchableWithoutFeedback>
@@ -121,6 +126,10 @@ const AddScreen = () => {
             onPress={() => handleRedirectActions('search')}
           />
         </View>
+      </ModalAlert>
+      <ModalAlert hideButton={true} visible={isLoading} onClose={() => null}>
+        <ActivityIndicator size="large" color="#4CAF50" />
+        <Text style={{ textAlign: 'center', marginTop: 10 }}>Adding Product</Text>
       </ModalAlert>
     </SafeAreaProvider>
   );

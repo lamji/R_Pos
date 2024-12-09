@@ -110,9 +110,16 @@ export default function Producst() {
 
         <ModalAlert title="" visible={openAlert} onClose={handleModalCloseAlert}></ModalAlert>
         {isLoading && (
-          <View style={styles.loader}>
+          <ModalAlert
+            hideButton={true}
+            visible={isLoading}
+            onClose={function (): void {
+              null;
+            }}
+          >
             <ActivityIndicator size="large" color="#4CAF50" />
-          </View>
+            <Text style={{ textAlign: 'center', marginTop: 10 }}>Retrieving Products</Text>
+          </ModalAlert>
         )}
       </Pressable>
     </KeyboardAvoidingView>
