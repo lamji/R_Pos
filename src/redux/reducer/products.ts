@@ -18,7 +18,18 @@ export const productSlice = createSlice({
       state.productDetails = action.payload;
     },
     addPosProduct: (state, action: PayloadAction<Record<string, any>>) => {
-      state.posProducts.unshift(action.payload); // Adds the new product to the top of the array
+      const { barcode, quantity } = action.payload;
+
+      // Check if the product already exists in posProducts
+      const existingProduct = state.posProducts.find((product) => product.barcode === barcode);
+
+      if (existingProduct) {
+        // If the product exists, update its quantity
+        existingProduct.quantity += quantity;
+      } else {
+        // If the product does not exist, add it to posProducts
+        state.posProducts.unshift(action.payload); // Add the new product to the top
+      }
     },
     removePosProduct: (state, action: PayloadAction<{ id: string }>) => {
       state.posProducts = state.posProducts.filter((product) => product.id !== action.payload.id);

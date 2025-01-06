@@ -85,12 +85,13 @@ export const styles = StyleSheet.create({
     color: 'red',
     fontSize: 12,
   },
-  text: {
-    textAlign: 'center',
-  },
+
   iconWrapper: {
     alignItems: 'center',
     marginBottom: 20,
+  },
+  text: {
+    textAlign: 'center',
   },
   buttonOk: {
     textAlign: 'center',

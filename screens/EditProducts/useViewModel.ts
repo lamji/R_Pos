@@ -2,16 +2,19 @@ import useApi from '@/src/hooks/useLogin';
 import { saveProductDetails, selectProductDetails } from '@/src/redux/reducer/products';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useFormik } from 'formik';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Alert } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import * as Yup from 'yup';
 import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system';
+import { getImagesState, setUpload } from '@/src/redux/reducer/global';
 
 export default function useViewModel() {
+  const state = useSelector(getImagesState);
   const queryClient = useQueryClient();
   const { request } = useApi();
+
   const dispatch = useDispatch();
   const product = useSelector(selectProductDetails);
   const [isEdit, setIsEdit] = useState<boolean>(false);
@@ -23,9 +26,7 @@ export default function useViewModel() {
 
   const [isMenuVisible, setMenuVisible] = useState(false);
 
-  const imagePlaceHolder = product.images
-    ? `data:image/png;base64,${product.images}`
-    : 'https://via.placeholder.com/100';
+  const imagePlaceHolder = product.images ? `${product.images}` : 'https://via.placeholder.com/100';
 
   const pickImage = async () => {
     // No permissions request is necessary for launching the image library
@@ -38,19 +39,23 @@ export default function useViewModel() {
 
     if (!result.canceled) {
       setImage(result.assets[0].uri);
-
       const base64Image = await FileSystem.readAsStringAsync(result.assets[0].uri, {
         encoding: FileSystem.EncodingType.Base64,
       });
 
-      setImageDb(base64Image);
+      dispatch(
+        setUpload({
+          previews: [base64Image],
+          images: [result.assets[0].uri],
+        })
+      );
+
       setMenuVisible(false);
     }
   };
 
   const { mutate, isSuccess } = useMutation({
     mutationFn: async (formData: any) => {
-      setIsLoading(true);
       try {
         return await request.put('/update_single_items', {
           token: true,
@@ -63,7 +68,7 @@ export default function useViewModel() {
               quantity: Number(formData?.quantity), // Converts "10" to 10
               regularPrice: Number(formData?.regularPrice), // Converts "10" to 10
               date: new Date(),
-              images: imageDb,
+              images: formData?.images?._j,
             },
           },
         });
@@ -73,7 +78,6 @@ export default function useViewModel() {
       }
     },
     onSuccess: (result) => {
-      console.log('results', result);
       setIsLoading(false);
       queryClient.invalidateQueries({ queryKey: ['getItems'] });
       if (result.success) {
@@ -104,6 +108,41 @@ export default function useViewModel() {
     },
   });
 
+  const url = 'https://api.cloudinary.com/v1_1/dlax3esau/image/upload';
+
+  const uploadImages = async () => {
+    setIsLoading(true);
+    const formData = new FormData();
+
+    state.forEach((base64Image: string, index: number) => {
+      formData.append('file', `data:image/jpeg;base64,${base64Image}`); // Directly use base64 string
+      formData.append('upload_preset', 'luis7g15');
+    });
+
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'multipart/form-data', // Ensure proper headers
+        },
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to upload images');
+      }
+
+      const result = await response.json();
+
+      setImageDb(result.secure_url);
+
+      return result.secure_url as string;
+    } catch (error) {
+      console.error('Error uploading images:', error);
+      throw error;
+    }
+  };
+
   const validationSchema = Yup.object({
     name: Yup.string()
       .required('Product name is required')
@@ -124,8 +163,12 @@ export default function useViewModel() {
     validateOnChange: false, // Disable validation on value change
     validateOnBlur: true, // Enable validation on blur
     onSubmit: async (values) => {
-      mutate(values);
+      // mutate(values);
       setVal(values);
+      const imageUpload = uploadImages();
+      if (await imageUpload) {
+        mutate({ ...values, images: imageUpload });
+      }
     },
   });
 

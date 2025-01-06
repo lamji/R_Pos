@@ -1,13 +1,11 @@
-import { dataTypeP, productsData } from '@/src/contants/products';
+import { dataTypeP } from '@/src/contants/products';
 import { useState } from 'react';
-import { Alert } from 'react-native';
-import { useFormik } from 'formik';
-import * as Yup from 'yup';
 import { useRouter } from 'expo-router';
 import useRefresh from '@/src/hooks/useRefresh';
 import {
   addPosProduct,
   adjustPosProductQuantity,
+  removePosProduct,
   selectPosProducts,
 } from '@/src/redux/reducer/products';
 import useApi from '@/src/hooks/useLogin';
@@ -16,9 +14,9 @@ import { useDispatch, useSelector } from 'react-redux';
 
 export default function useViewModel() {
   const dispatch = useDispatch();
-  const posProducts = useSelector(selectPosProducts);
   const { request } = useApi();
   const router = useRouter();
+  const posProducts = useSelector(selectPosProducts);
   const { refreshing, onRefresh } = useRefresh();
   const [isReset, setIsReset] = useState(false);
   const [openModal, setOpenModal] = useState(false);
@@ -74,7 +72,8 @@ export default function useViewModel() {
     setIsEdit(false);
   };
 
-  const handlePressList = ({ data }: { data: dataTypeP }) => {
+  const handlePressList = (item: any) => {
+    console.log('data', item);
     setSelectedData(data);
     setOpenModal(true);
   };
@@ -96,8 +95,36 @@ export default function useViewModel() {
   const handleBarcodeScanned = (b: string) => {
     if (b) {
       setBarcodeModal(false);
-      console.log('barcode', b);
+
+      const products = data?.data[0].items;
+
+      // Create a map for quick lookups
+      const itemMap = new Map<string, any>();
+      products.forEach((item: any) => {
+        itemMap.set(item.barcode, item);
+      });
+
+      // Find the item by barcode
+      const foundItem = itemMap.get(b);
+
+      if (foundItem) {
+        const updatedData = {
+          ...foundItem,
+          quantity: 1,
+        };
+        dispatch(addPosProduct(updatedData));
+        // Handle the found item (e.g., update state, display in UI, etc.)
+      } else {
+        console.log('Item not found');
+        // Handle the case where the item doesn't exist
+      }
     }
+  };
+
+  const handleRemoveProduct = (id: string) => {
+    // Remove the product from the global state
+    dispatch(removePosProduct({ id }));
+    setOpenModal(false);
   };
 
   return {
@@ -125,5 +152,6 @@ export default function useViewModel() {
     setBarcodeModal,
     barcodeModal,
     handleBarcodeScanned,
+    handleRemoveProduct,
   };
 }

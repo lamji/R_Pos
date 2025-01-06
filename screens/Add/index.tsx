@@ -29,6 +29,8 @@ const AddScreen = () => {
     handleRedirectActions,
     formik,
     isLoading,
+    setModalVisible,
+    handleOnSelect,
   } = useViewModel();
 
   return (
@@ -49,6 +51,7 @@ const AddScreen = () => {
                 formik={formik}
                 reset={isReset}
                 error={formik.errors.type}
+                onSelect={(val: string) => handleOnSelect(val)}
               />
               <Input
                 label="ID"
@@ -118,7 +121,10 @@ const AddScreen = () => {
           <ButtonCard
             title="Scan Item"
             iconName="barcode" // Icon name from Ionicons
-            onPress={() => handleRedirectActions('scan')}
+            onPress={() => {
+              handleRedirectActions('scan');
+              setModalVisible;
+            }}
           />
           <ButtonCard
             title="Search Item"

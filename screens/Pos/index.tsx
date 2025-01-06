@@ -5,27 +5,34 @@ import {
   KeyboardAvoidingView,
   Platform,
   Pressable,
-  TouchableOpacity,
-  View,
   Text,
-  Image,
-  Alert,
+  View,
   RefreshControl,
-  ActivityIndicator,
+  TouchableOpacity,
+  Dimensions,
+  Image,
 } from 'react-native';
 import { AutocompleteInput } from '@/src/components/AutoComplete';
 import useViewModel from './useViewModel';
 import styles from './useStyles';
-
-import { generateVintageColor, getInitials } from '@/src/helper/colorGenerator';
-import { formatNumberWithPeso } from '@/src/helper/numberCommaSeparator';
-import { theme } from '@/src/theme';
-import ModalAlert from '@/src/components/Modal';
-import Input from '@/src/components/Input';
-import Barcode from '@/src/components/Barcode';
+import { GestureHandlerRootView, GestureDetector, Gesture } from 'react-native-gesture-handler';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withSpring,
+  withTiming,
+  runOnJS,
+} from 'react-native-reanimated';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import FloatingIcon from '@/src/components/FloatButton';
+import ModalAlert from '@/src/components/Modal';
 import CameraScanner from '@/src/components/Scanner';
+import { theme } from '@/src/theme';
+import { formatNumberWithPeso } from '@/src/helper/numberCommaSeparator';
+import { generateVintageColor, getInitials } from '@/src/helper/colorGenerator';
+
+const WIDTH_SCREEN = Dimensions.get('window').width;
+const ITEM_HEIGHT = 70;
 
 export default function Products() {
   const {
@@ -46,142 +53,186 @@ export default function Products() {
     barcodeModal,
     handleBarcodeScanned,
     setBarcodeModal,
+    handleRemoveProduct,
   } = useViewModel();
 
-  const Item = ({ data }: { data: any }) => {
+  const SwipeableItem = ({ item }: { item: any }) => {
+    const swipeTranslateX = useSharedValue(0);
+    const pressed = useSharedValue(false);
+
+    const pan = Gesture.Pan()
+      .onBegin(() => {
+        pressed.value = true;
+      })
+      .onChange((event) => {
+        if (event.translationX < 0) {
+          swipeTranslateX.value = event.translationX;
+        }
+      })
+      .onFinalize(() => {
+        const shouldReveal = swipeTranslateX.value < -WIDTH_SCREEN * 0.3;
+        if (shouldReveal) {
+          swipeTranslateX.value = withSpring(-WIDTH_SCREEN * 0.3); // Stop at reveal threshold
+        } else {
+          swipeTranslateX.value = withSpring(0); // Reset position
+        }
+        pressed.value = false;
+      });
+
+    const transformStyle = useAnimatedStyle(() => ({
+      transform: [
+        { translateX: swipeTranslateX.value },
+        { scale: withTiming(pressed.value ? 1.05 : 1) },
+      ],
+    }));
+
+    const deleteButtonStyle = useAnimatedStyle(() => ({
+      opacity: swipeTranslateX.value < -WIDTH_SCREEN * 0.3 ? 1 : 1,
+    }));
+
     const avatarBackground = generateVintageColor();
 
     return (
-      <TouchableOpacity onPress={() => handlePressList({ data })}>
-        <View style={styles.item}>
-          <View style={styles.nameWrapper}>
-            {data.images ? (
-              <Image
-                source={{ uri: `data:image/png;base64,${data.images}` }}
-                style={styles.image}
-              />
-            ) : (
-              <View style={[styles.avatar, { backgroundColor: avatarBackground.hex }]}>
-                <Text style={styles.avatarText}>{getInitials(data.name)}</Text>
-              </View>
-            )}
-            <View style={{ marginLeft: 10 }}>
-              <Text style={styles.title}>{data.name}</Text>
-              <Text
-                style={{
-                  color: theme.colors.default,
-                }}
-              >
-                Qty: {data.quantity}
-              </Text>
-              <Text
-                style={{
-                  color: theme.colors.default,
-                }}
-              >
-                Price: {formatNumberWithPeso(data.price)}
-              </Text>
-            </View>
-          </View>
+      <GestureDetector gesture={pan}>
+        <View style={{ position: 'relative', height: ITEM_HEIGHT, marginVertical: 10 }}>
+          <Animated.View style={[styles.deleteButton, deleteButtonStyle]}>
+            <TouchableOpacity onPress={() => handleRemoveProduct(item.id)}>
+              <Text style={styles.deleteText}>Delete</Text>
+            </TouchableOpacity>
+          </Animated.View>
 
-          <Text style={styles.totalItems}>{formatNumberWithPeso(data.price * data.quantity)}</Text>
+          <Animated.View style={[styles.swipeableContainer, transformStyle]}>
+            <TouchableOpacity onPress={() => handlePressList(item)}>
+              <View style={styles.item}>
+                <View style={styles.nameWrapper}>
+                  {item.images ? (
+                    <Image source={{ uri: `${item.images}` }} style={styles.image} />
+                  ) : (
+                    <View style={[styles.avatar, { backgroundColor: avatarBackground.hex }]}>
+                      <Text style={styles.avatarText}>{getInitials(item.name)}</Text>
+                    </View>
+                  )}
+                  <View style={{ marginLeft: 10 }}>
+                    <Text style={styles.title}>{item.name}</Text>
+                    <Text style={{ color: theme.colors.default }}>Qty: {item.quantity}</Text>
+                    <Text style={{ color: theme.colors.default }}>
+                      Price: {formatNumberWithPeso(item.price)}
+                    </Text>
+                  </View>
+                </View>
+                <Text style={styles.totalItems}>
+                  {formatNumberWithPeso(item.price * item.quantity)}
+                </Text>
+              </View>
+            </TouchableOpacity>
+          </Animated.View>
         </View>
-      </TouchableOpacity>
+      </GestureDetector>
+    );
+  };
+
+  const Scanner = () => {
+    return (
+      <>
+        <CameraScanner
+          isCameraOnly={false}
+          onScanned={(barcode: string) => handleBarcodeScanned(barcode)}
+        />
+        <TouchableOpacity style={styles.closeButton} onPress={() => setBarcodeModal(false)}>
+          <Ionicons name="close" size={30} color="white" />
+        </TouchableOpacity>
+      </>
     );
   };
 
   return (
-    <KeyboardAvoidingView
-      style={{ flex: 1, padding: 10 }}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-    >
-      <Pressable
-        style={{ flex: 1 }}
-        onPress={Keyboard.dismiss} // Dismiss the keyboard when the user taps outside
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <KeyboardAvoidingView
+        style={{ flex: 1, padding: 10 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
-        <View style={styles.autoCompleteWrapper}>
-          <AutocompleteInput
-            data={data as any}
-            placeholder="Search product..."
-            onSelect={handleSelect}
-            keyExtractor={(item) => item.id.toString()}
-            displayField="name"
-            maxHeight={210}
-            reset={false}
-            enableScan={true}
-            width={'86%'}
-            handleScan={() => setBarcodeModal(true)}
-          />
-        </View>
-
-        <FlatList
-          data={posProducts}
-          renderItem={({ item }) => <Item data={item} />}
-          keyExtractor={(item) => item.id.toString()}
-          style={styles.list}
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={onRefresh}
-              colors={['grey']}
-              progressBackgroundColor={'black'}
+        <Pressable style={{ flex: 1 }} onPress={Keyboard.dismiss}>
+          <View style={styles.autoCompleteWrapper}>
+            <AutocompleteInput
+              data={data as any}
+              placeholder="Search product..."
+              onSelect={handleSelect}
+              keyExtractor={(item) => item.id.toString()}
+              displayField="name"
+              maxHeight={210}
+              reset={false}
+              enableScan={true}
+              width={'86%'}
+              handleScan={() => setBarcodeModal(true)}
             />
-          }
-          ListEmptyComponent={
-            <View style={styles.emptyList}>
-              <Text style={{ fontWeight: 700, marginBottom: 4 }}>No products added</Text>
-              <Text style={{ fontSize: 12 }}>Scan or search</Text>
-            </View>
-          }
-        />
-
-        <FloatingIcon label="Total" handleCheckout={handleCheckout} amount={total} />
-
-        <ModalAlert
-          title={selectedData.name}
-          visible={openModal}
-          hideButton={true}
-          onClose={handleModalClose}
-        >
-          <View style={{ width: '100%' }}>
-            <View style={styles.qtyWrapper}>
-              <TouchableOpacity
-                style={[styles.buttonMinus, { justifyContent: 'center' }]}
-                onPress={() => handleDecrement(selectedData.id)}
-              >
-                <Ionicons name="remove-outline" size={20} color="#fff" />
-              </TouchableOpacity>
-              <Text style={styles.qtyHead}>{selectedData.quantity}</Text>
-              <TouchableOpacity
-                style={[styles.buttonAdd, { justifyContent: 'center' }]}
-                onPress={() => handleIncrement(selectedData.id)}
-              >
-                <Ionicons name="add-outline" size={20} color="#fff" />
-              </TouchableOpacity>
-            </View>
-            <TouchableOpacity
-              style={[styles.button, { justifyContent: 'center' }]}
-              onPress={handleModalClose}
-            >
-              <Ionicons name="save" size={20} color="#fff" style={styles.icon} />
-              <Text style={styles.buttonText}>Proceed</Text>
-            </TouchableOpacity>
           </View>
-        </ModalAlert>
-        <ModalAlert visible={barcodeModal} onClose={() => null} hideButton={true}>
-          <CameraScanner
-            isCameraOnly={false}
-            onScanned={(barcode: string) => handleBarcodeScanned(barcode)}
+
+          <FlatList
+            data={posProducts}
+            renderItem={({ item }) => <SwipeableItem item={item} />}
+            keyExtractor={(item) => item.id.toString()}
+            style={styles.list}
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={onRefresh}
+                colors={['grey']}
+                progressBackgroundColor={'black'}
+              />
+            }
+            ListEmptyComponent={
+              <View style={styles.emptyList}>
+                <Text style={{ fontWeight: '700', marginBottom: 4 }}>No products added</Text>
+                <Text style={{ fontSize: 12 }}>Scan or search</Text>
+              </View>
+            }
           />
-          <TouchableOpacity style={styles.closeButton} onPress={() => setBarcodeModal(false)}>
-            <Ionicons name="close" size={30} color="white" />
-          </TouchableOpacity>
-        </ModalAlert>
-        <ModalAlert hideButton={true} visible={isLoading} onClose={() => null}>
-          <ActivityIndicator size="large" color="#4CAF50" />
-          <Text style={{ textAlign: 'center', marginTop: 10 }}>Geting product list</Text>
-        </ModalAlert>
-      </Pressable>
-    </KeyboardAvoidingView>
+
+          <FloatingIcon label="Total" handleCheckout={handleCheckout} amount={total} />
+
+          <ModalAlert
+            title={selectedData.name}
+            visible={openModal}
+            hideButton={true}
+            onClose={handleModalClose}
+          >
+            <View style={{ width: '100%' }}>
+              <View style={styles.qtyWrapper}>
+                <TouchableOpacity
+                  style={[styles.buttonMinus, { justifyContent: 'center' }]}
+                  onPress={() => handleDecrement(selectedData.id)}
+                >
+                  <Ionicons name="remove-outline" size={20} color="#fff" />
+                </TouchableOpacity>
+                <Text style={styles.qtyHead}>{selectedData.quantity}</Text>
+                <TouchableOpacity
+                  style={[styles.buttonAdd, { justifyContent: 'center' }]}
+                  onPress={() => handleIncrement(selectedData.id)}
+                >
+                  <Ionicons name="add-outline" size={20} color="#fff" />
+                </TouchableOpacity>
+              </View>
+              <TouchableOpacity
+                style={[styles.button, { justifyContent: 'center' }]}
+                onPress={handleModalClose}
+              >
+                <Ionicons name="save" size={20} color="#fff" style={styles.icon} />
+                <Text style={styles.buttonText}>Proceed</Text>
+              </TouchableOpacity>
+            </View>
+          </ModalAlert>
+
+          <ModalAlert visible={barcodeModal} onClose={() => null} hideButton={true}>
+            <CameraScanner
+              isCameraOnly={false}
+              onScanned={(barcode: string) => handleBarcodeScanned(barcode)}
+            />
+            <TouchableOpacity style={styles.closeButton} onPress={() => setBarcodeModal(false)}>
+              <Ionicons name="close" size={30} color="white" />
+            </TouchableOpacity>
+          </ModalAlert>
+        </Pressable>
+      </KeyboardAvoidingView>
+    </GestureHandlerRootView>
   );
 }

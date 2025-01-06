@@ -141,12 +141,11 @@ const styles = StyleSheet.create({
   camera: {
     flex: 1,
     height: 300,
-    borderRadius: 50,
   },
   closeButton: {
     position: 'absolute',
-    top: 30,
-    left: 20,
+    top: 10,
+    left: 10,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
     borderRadius: 25,
     padding: 10,

@@ -7,15 +7,21 @@ import { generateUniqueBarcode } from '@/src/helper/barcodegenerator';
 import uuid from 'react-native-uuid';
 
 import useApi from '@/src/hooks/useLogin';
-import { useSession } from '@/src/ctx';
 import { useDispatch, useSelector } from 'react-redux';
-import { getBarcode, setBarcode, setSearchType } from '@/src/redux/reducer/global';
+import {
+  getBarcode,
+  getScanned,
+  setBarcode,
+  setScanned,
+  setSearchType,
+} from '@/src/redux/reducer/global';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 export default function useViewModel() {
   const queryClient = useQueryClient();
   const dispatch = useDispatch();
   const barcodeState = useSelector(getBarcode);
+  const scannedProducts = useSelector(getScanned);
   const router = useRouter();
   const { request } = useApi();
 
@@ -34,6 +40,7 @@ export default function useViewModel() {
       if (result.success) {
         setIsLoading(false);
         dispatch(setBarcode(''));
+        dispatch(setScanned({}));
         formik.resetForm(); // Reset the form here
         formik.setFieldValue('type', '');
       } else {
@@ -115,20 +122,24 @@ export default function useViewModel() {
   };
 
   const handleRedirectActions = (type: string) => {
-    router.push(`/actions`);
     handleCloseModal();
     dispatch(setSearchType(type));
     if (type === 'scanNew') {
       formik.setFieldValue('type', 'New');
+    } else {
+      formik.setFieldValue('type', 'NG');
     }
+    setTimeout(() => {
+      router.push(`/actions`);
+    }, 300);
   };
 
-  useEffect(() => {
-    if (formik.values.type === 'NG') {
+  const handleOnSelect = (val: string) => {
+    if (val === 'NG') {
       setModalVisible(true);
       setIsReset(false);
     }
-  }, [formik.values.type]);
+  };
 
   useEffect(() => {
     if (barcodeState) {
@@ -136,6 +147,18 @@ export default function useViewModel() {
       formik.setFieldValue('id', uuid.v4());
     }
   }, [barcodeState]);
+
+  useEffect(() => {
+    if (scannedProducts) {
+      formik.setFieldValue('id', scannedProducts[0]?.id ?? '');
+      formik.setFieldValue('type', 'NG');
+      formik.setFieldValue('barcode', scannedProducts[0]?.barcode ?? '');
+      formik.setFieldValue('name', scannedProducts[0]?.name ?? '');
+      formik.setFieldValue('price', scannedProducts[0]?.price?.toString() ?? '');
+      formik.setFieldValue('quantity', scannedProducts[0]?.quantity?.toString() ?? '');
+      formik.setFieldValue('originalPrice', scannedProducts[0]?.regularPrice?.toString() ?? '');
+    }
+  }, [scannedProducts]);
 
   return {
     formik,
@@ -145,5 +168,7 @@ export default function useViewModel() {
     handleGenerateBarcode,
     handleRedirectActions,
     isLoading,
+    setModalVisible,
+    handleOnSelect,
   };
 }

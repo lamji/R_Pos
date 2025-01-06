@@ -15,9 +15,16 @@ type SelectComponentProps = {
   formik: any;
   reset: boolean;
   error?: string;
+  onSelect?: (val: string) => void;
 };
 
-const SelectComponent: React.FC<SelectComponentProps> = ({ data, formik, reset, error }) => {
+const SelectComponent: React.FC<SelectComponentProps> = ({
+  data,
+  formik,
+  reset,
+  error,
+  onSelect,
+}) => {
   const [selectedValue, setSelectedValue] = useState('');
   const [isOpen, setIsOpen] = useState(false); // Control dropdown visibility
 
@@ -30,6 +37,7 @@ const SelectComponent: React.FC<SelectComponentProps> = ({ data, formik, reset, 
     setSelectedValue(item.label);
     setIsOpen(false); // Close dropdown after selection
     formik.setFieldValue('type', item.value);
+    onSelect?.(item.value);
   };
 
   useEffect(() => {
@@ -37,6 +45,11 @@ const SelectComponent: React.FC<SelectComponentProps> = ({ data, formik, reset, 
       setSelectedValue('');
     }
   }, [reset]);
+
+  useEffect(() => {
+    const label = data.filter((item) => item.value === formik.values.type);
+    setSelectedValue(label?.[0]?.label ?? '');
+  }, [formik.values]);
 
   return (
     <View style={styles.container}>

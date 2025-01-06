@@ -1,5 +1,7 @@
 import { theme } from '@/src/theme';
-import { StyleSheet } from 'react-native';
+import { Dimensions, StyleSheet } from 'react-native';
+
+const WIDTH_SCREEN = Dimensions.get('window').width;
 
 const styles = StyleSheet.create({
   container: {
@@ -12,13 +14,11 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   item: {
-    backgroundColor: theme.colors.background,
-    padding: 20,
-    borderBottomWidth: 1,
     borderBottomColor: '#EEEEEE',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    shadowRadius: 5,
   },
   title: {
     fontSize: theme.fontSizes.body,
@@ -167,6 +167,35 @@ const styles = StyleSheet.create({
     zIndex: 1,
     bottom: 30,
     right: '43%',
+  },
+  deleteButton: {
+    position: 'absolute',
+    right: 10,
+    top: 10,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: WIDTH_SCREEN * 0.2,
+    backgroundColor: 'red',
+    borderRadius: 10,
+    padding: 10,
+  },
+  deleteText: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+  swipeableContainer: {
+    backgroundColor: '#FFF',
+    justifyContent: 'center',
+
+    borderRadius: 10,
+    marginHorizontal: 10,
+    padding: 20,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 5,
   },
 });
 

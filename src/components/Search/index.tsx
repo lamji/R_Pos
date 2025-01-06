@@ -20,7 +20,6 @@ type SearchWithDebounceProps<T> = {
 const SearchWithDebounce = <T,>({
   data,
   onSearchResults,
-  filterFunction,
   placeholder = 'Search...',
   debounceDelay = 500,
   setValue,
@@ -41,7 +40,7 @@ const SearchWithDebounce = <T,>({
 
   // Filter results based on debounced term
   useEffect(() => {
-    const filteredProducts = data.filter(
+    const filteredProducts = data?.filter(
       (product: any) =>
         product.name.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
         product?.barcode?.includes(debouncedSearchTerm)
