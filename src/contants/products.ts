@@ -15,6 +15,7 @@ export type dataTypeP = {
   date: string;
   quantityHistory: QuantityHistoryType[];
   images?: string;
+  stocks?: number;
 };
 
 export const productsData: dataTypeP[] = [

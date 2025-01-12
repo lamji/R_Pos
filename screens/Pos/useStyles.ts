@@ -13,13 +13,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginTop: 10,
   },
-  item: {
-    borderBottomColor: '#EEEEEE',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    shadowRadius: 5,
-  },
+
   title: {
     fontSize: theme.fontSizes.body,
     color: theme.colors.default,
@@ -52,6 +46,8 @@ const styles = StyleSheet.create({
   nameWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
+    marginLeft: 10,
+    backgroundColor: 'red',
   },
   image: {
     width: 50, // Adjust as needed
@@ -187,15 +183,22 @@ const styles = StyleSheet.create({
   },
   swipeableContainer: {
     backgroundColor: '#FFF',
-    justifyContent: 'center',
-
-    borderRadius: 10,
-    marginHorizontal: 10,
-    padding: 20,
+    borderRadius: 5,
+    padding: 15,
     shadowColor: '#000',
     shadowOpacity: 0.1,
     shadowOffset: { width: 0, height: 2 },
     shadowRadius: 5,
+    alignItems: 'flex-start',
+    height: 70,
+    justifyContent: 'center',
+  },
+  price: {
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginTop: -10,
+    marginBottom: 10,
+    fontSize: 18,
   },
 });
 

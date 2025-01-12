@@ -8,6 +8,7 @@ import {
 import axios, { AxiosError, AxiosResponse } from 'axios';
 
 /**
+ * Not in used
  * Custom hook for making POST requests with mutation.
  *
  * @template TData - The expected response type from the server.

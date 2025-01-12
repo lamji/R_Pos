@@ -8,8 +8,6 @@ const OutOfStocks: React.FC = () => {
   useEffect(() => {
     // Listen for network status changes
     const unsubscribe = NetInfo.addEventListener((state: NetInfoState) => {
-      // console.log('Connection type:', state.type); // Log connection type
-      // console.log('Is connected?', state.isConnected); // Log connectivity status
       setIsConnected(state.isConnected as boolean); // Set boolean directly
     });
 

@@ -22,6 +22,8 @@ import { sampleData } from '@/src/contants/utang';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import ModalAlert from '@/src/components/Modal';
 import Receipt from '@/src/components/receipts';
+import { theme } from '@/src/theme';
+import { formatNumberWithPeso } from '@/src/helper/numberCommaSeparator';
 
 export default function Checkout() {
   const { formik, total, handlePressCard, type, handleSelect, handleAddNew } = useViewModel();
@@ -35,7 +37,7 @@ export default function Checkout() {
 
   return (
     <SafeAreaProvider>
-      <SafeAreaView style={{ flex: 1 }}>
+      <SafeAreaView style={{ flex: 1, backgroundColor: theme.colors.background }}>
         <KeyboardAvoidingView
           style={{ flex: 1 }}
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'} // Adjust behavior for Android
@@ -167,7 +169,34 @@ export default function Checkout() {
               </View>
             </Pressable>
           </ScrollView>
-          <FloatingIcon label="Pay" handleCheckout={() => formik.handleSubmit()} amount={total} />
+          <View style={{ flex: 1, justifyContent: 'flex-end' }}>
+            <TouchableOpacity
+              style={{
+                backgroundColor: theme.colors.primary,
+                padding: 20,
+                alignItems: 'center',
+                borderRadius: 0,
+                position: 'absolute',
+                // bottom: 10,
+                right: 0,
+                // elevation: 5,
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.3,
+                shadowRadius: 4,
+                width: '100%',
+              }}
+              activeOpacity={0.8}
+              onPress={() => {
+                console.log('Button pressed');
+                formik.handleSubmit();
+              }}
+            >
+              <Text style={{ color: '#fff', fontSize: 18, fontWeight: 'bold' }}>
+                Pay: {formatNumberWithPeso(total)}
+              </Text>
+            </TouchableOpacity>
+          </View>
         </KeyboardAvoidingView>
       </SafeAreaView>
     </SafeAreaProvider>

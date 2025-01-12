@@ -18,6 +18,7 @@ const styles = StyleSheet.create({
     color: theme.colors.default,
     fontSize: theme.fontSizes.h6,
     fontWeight: 700,
+    marginTop: 20,
   },
   inputWrapper: {
     backgroundColor: theme.colors.background,

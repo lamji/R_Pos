@@ -1,5 +1,5 @@
 import { useFormik } from 'formik';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Linking } from 'react-native';
 import * as Yup from 'yup';
 

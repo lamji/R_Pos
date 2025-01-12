@@ -62,6 +62,7 @@ export default function useViewModel() {
     setIsReset(false);
     const updatedData = {
       ...item,
+      stocks: item.quantity,
       quantity: 1,
     };
     dispatch(addPosProduct(updatedData));
@@ -73,8 +74,8 @@ export default function useViewModel() {
   };
 
   const handlePressList = (item: any) => {
-    console.log('data', item);
-    setSelectedData(data);
+    console.log('item', item);
+    setSelectedData(item);
     setOpenModal(true);
   };
 

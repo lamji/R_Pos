@@ -9,7 +9,7 @@ const createValidationSchemaCash = (total: number) =>
     amount: Yup.number()
       .typeError('Amount must be a number')
       .required('Amount is required')
-      .moreThan(total, `Amount must be greater than ${total}`),
+      .min(total, `Amount must be greater than or equal ${total}`),
   });
 
 // Validation schema for "utang" (example: no validation for amount here)

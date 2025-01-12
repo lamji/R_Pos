@@ -5,8 +5,8 @@ const styles = StyleSheet.create({
   fab: {
     position: 'absolute',
     bottom: 20, // Distance from the bottom of the screen
-    left: 0, // Start from the left
-    right: 0, // Extend to the right
+    left: 10, // Start from the left
+    right: 10, // Extend to the right
     alignSelf: 'center', // Center horizontally
     backgroundColor: theme.colors.primary, // Green for checkout
     flexDirection: 'row', // Arrange icon and text in a row

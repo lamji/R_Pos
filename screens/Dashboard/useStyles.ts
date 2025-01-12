@@ -3,10 +3,8 @@ import { StyleSheet } from 'react-native';
 
 const styles = StyleSheet.create({
   container: {
-    // flex: 1,
-    // // backgroundColor: '#25292e',
-    // justifyContent: 'center',
-    // alignItems: 'center',
+    backgroundColor: theme.colors.background,
+    height: '100%',
   },
   text: {
     color: theme.colors.default,
@@ -28,8 +26,6 @@ const styles = StyleSheet.create({
   },
   item: {
     padding: 20,
-    // marginVertical: 0.2,
-    // marginHorizontal: 10,
     borderBottomWidth: 1,
     borderBottomColor: '#EEEEEE',
     backgroundColor: theme.colors.background,
@@ -50,7 +46,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 10,
   },
-
   datePickerIcon: {
     marginLeft: 8,
   },

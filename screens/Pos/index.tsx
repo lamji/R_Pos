@@ -56,6 +56,8 @@ export default function Products() {
     handleRemoveProduct,
   } = useViewModel();
 
+  console.log('posProducts', posProducts);
+
   const SwipeableItem = ({ item }: { item: any }) => {
     const swipeTranslateX = useSharedValue(0);
     const pressed = useSharedValue(false);
@@ -94,7 +96,7 @@ export default function Products() {
 
     return (
       <GestureDetector gesture={pan}>
-        <View style={{ position: 'relative', height: ITEM_HEIGHT, marginVertical: 10 }}>
+        <View style={{ position: 'relative', height: ITEM_HEIGHT, marginVertical: 3 }}>
           <Animated.View style={[styles.deleteButton, deleteButtonStyle]}>
             <TouchableOpacity onPress={() => handleRemoveProduct(item.id)}>
               <Text style={styles.deleteText}>Delete</Text>
@@ -103,26 +105,80 @@ export default function Products() {
 
           <Animated.View style={[styles.swipeableContainer, transformStyle]}>
             <TouchableOpacity onPress={() => handlePressList(item)}>
-              <View style={styles.item}>
-                <View style={styles.nameWrapper}>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+                  width: '100%',
+                  alignItems: 'center',
+                }}
+              >
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'flex-start',
+                    alignItems: 'center',
+                    maxWidth: '80%',
+                  }}
+                >
+                  <View style={{ marginRight: 5 }}>
+                    {item.images ? (
+                      <View>
+                        <Image source={{ uri: `${item.images}` }} style={styles.image} />
+                      </View>
+                    ) : (
+                      <View style={[styles.avatar, { backgroundColor: avatarBackground.hex }]}>
+                        <Text style={styles.avatarText}>{getInitials(item.name)}</Text>
+                      </View>
+                    )}
+                  </View>
+                  <View>
+                    <Text style={{ ...styles.title, width: '70%' }}>{item.name}</Text>
+                    <View style={{ display: 'flex', flexDirection: 'row' }}>
+                      <Text style={{ color: theme.colors.default, fontSize: 10, marginRight: 10 }}>
+                        Qty: {item.quantity}
+                      </Text>
+                      <Text style={{ color: theme.colors.default, fontSize: 10, marginRight: 10 }}>
+                        Stocks: {item.stocks}
+                      </Text>
+                      <Text style={{ color: theme.colors.default, fontSize: 10 }}>
+                        Price: {formatNumberWithPeso(item.price)}
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+
+                <View>
+                  <Text style={styles.totalItems}>
+                    {formatNumberWithPeso(item.price * item.quantity)}
+                  </Text>
+                </View>
+                {/* <View style={styles.nameWrapper}>
                   {item.images ? (
-                    <Image source={{ uri: `${item.images}` }} style={styles.image} />
+                    <View>
+                      <Image source={{ uri: `${item.images}` }} style={styles.image} />
+                    </View>
                   ) : (
                     <View style={[styles.avatar, { backgroundColor: avatarBackground.hex }]}>
                       <Text style={styles.avatarText}>{getInitials(item.name)}</Text>
                     </View>
                   )}
-                  <View style={{ marginLeft: 10 }}>
+                  <View>
                     <Text style={styles.title}>{item.name}</Text>
-                    <Text style={{ color: theme.colors.default }}>Qty: {item.quantity}</Text>
-                    <Text style={{ color: theme.colors.default }}>
-                      Price: {formatNumberWithPeso(item.price)}
-                    </Text>
+                    <View style={{ display: 'flex', flexDirection: 'row' }}>
+                      <Text style={{ color: theme.colors.default, fontSize: 10, marginRight: 10 }}>
+                        Qty: {item.quantity}
+                      </Text>
+                      <Text style={{ color: theme.colors.default, fontSize: 10, marginRight: 10 }}>
+                        Stocks: {item.stocks}
+                      </Text>
+                      <Text style={{ color: theme.colors.default, fontSize: 10 }}>
+                        Price: {formatNumberWithPeso(item.price)}
+                      </Text>
+                    </View>
                   </View>
                 </View>
-                <Text style={styles.totalItems}>
-                  {formatNumberWithPeso(item.price * item.quantity)}
-                </Text>
+                */}
               </View>
             </TouchableOpacity>
           </Animated.View>
@@ -131,19 +187,19 @@ export default function Products() {
     );
   };
 
-  const Scanner = () => {
-    return (
-      <>
-        <CameraScanner
-          isCameraOnly={false}
-          onScanned={(barcode: string) => handleBarcodeScanned(barcode)}
-        />
-        <TouchableOpacity style={styles.closeButton} onPress={() => setBarcodeModal(false)}>
-          <Ionicons name="close" size={30} color="white" />
-        </TouchableOpacity>
-      </>
-    );
-  };
+  // const Scanner = () => {
+  //   return (
+  //     <>
+  //       <CameraScanner
+  //         isCameraOnly={false}
+  //         onScanned={(barcode: string) => handleBarcodeScanned(barcode)}
+  //       />
+  //       <TouchableOpacity style={styles.closeButton} onPress={() => setBarcodeModal(false)}>
+  //         <Ionicons name="close" size={30} color="white" />
+  //       </TouchableOpacity>
+  //     </>
+  //   );
+  // };
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
@@ -201,6 +257,7 @@ export default function Products() {
                 <TouchableOpacity
                   style={[styles.buttonMinus, { justifyContent: 'center' }]}
                   onPress={() => handleDecrement(selectedData.id)}
+                  disabled={selectedData.quantity === 1}
                 >
                   <Ionicons name="remove-outline" size={20} color="#fff" />
                 </TouchableOpacity>
@@ -208,9 +265,15 @@ export default function Products() {
                 <TouchableOpacity
                   style={[styles.buttonAdd, { justifyContent: 'center' }]}
                   onPress={() => handleIncrement(selectedData.id)}
+                  disabled={selectedData.quantity === selectedData.stocks}
                 >
                   <Ionicons name="add-outline" size={20} color="#fff" />
                 </TouchableOpacity>
+              </View>
+              <View>
+                <Text style={styles.price}>
+                  Price: {formatNumberWithPeso(selectedData?.price || 0)}
+                </Text>
               </View>
               <TouchableOpacity
                 style={[styles.button, { justifyContent: 'center' }]}
@@ -219,6 +282,11 @@ export default function Products() {
                 <Ionicons name="save" size={20} color="#fff" style={styles.icon} />
                 <Text style={styles.buttonText}>Proceed</Text>
               </TouchableOpacity>
+              {selectedData.quantity === selectedData.stocks && (
+                <Text style={{ color: 'red', fontSize: 11, textAlign: 'center', marginTop: 10 }}>
+                  Out of stocks
+                </Text>
+              )}
             </View>
           </ModalAlert>
 

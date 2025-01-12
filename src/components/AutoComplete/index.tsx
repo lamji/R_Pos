@@ -38,7 +38,7 @@ export function AutocompleteInput<T>({
   const handleSearch = (text: string) => {
     setQuery(text);
     if (text.length > 0) {
-      const results = data.filter((item) =>
+      const results = data?.filter((item) =>
         item[displayField]?.toString().toLowerCase().includes(text.toLowerCase())
       );
       setFilteredData(results);
